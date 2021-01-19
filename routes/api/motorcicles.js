@@ -1,46 +1,125 @@
 const router = require('express').Router();
 const passport  = require('passport');
-const AWS = require('aws-sdk');
 const unqid = require('unqid');
-const region = require('../../config/config').config();
 const dotenv = require('dotenv').config();
+const { createOrUpdateMotorcicle,
+    validateMotorcicle,
+    listMotorcicle,
+    deleteMotorcicle
+} = require('../../helpers');
 
-router.post('/',(req,res,next)=>{
-    AWS.config.update(region.aws_local_config);
-    
-    const { time } = req.body;
+
+router.get('/',async(req,res)=>{
+    const queryParams ={
+        TableName: process.env.MOTORCICLES_TABLE
+    }
+    try{
+        const data = await listMotorcicle(queryParams);
+        res.status(200);
+        return res.send(data);
+    }catch(err){
+        res.status(401);
+        res.send(err);
+    }
+});
+
+
+router.post('/',async (req,res)=>{    
+    const { startAt } = req.body;
     const motorcicleId = unqid();
-    const docClient = new AWS.DynamoDB.DocumentClient();
-    const params ={
+    
+    const queryParams ={
+        TableName: process.env.MOTORCICLES_TABLE,
+        FilterExpression:'startAt=:t',
+        ExpressionAttributeValues:{
+            ':t':startAt
+        }
+    }
+    try{
+        const data = await validateMotorcicle(queryParams);
+        if(data.length>0){
+            throw  { startAt :`El tiempo ${startAt} ya se encuentra registrado`};
+        }else{
+            const params ={
+                TableName: process.env.MOTORCICLES_TABLE,
+                Key:{
+                    id:motorcicleId
+                },
+                UpdateExpression: "SET startAt=:t, bussy=:bussy, currentUser=:user",
+                ExpressionAttributeValues :{
+                    ':t':startAt,
+                    ':bussy':false,
+                    ':user':''
+                },
+                ReturnValues:'ALL_NEW'
+            };
+            const motorcicle = await createOrUpdateMotorcicle(params);
+            res.status(200);
+            return res.send(motorcicle);
+        }
+    }catch(err){
+        res.status(401);
+        res.send(err);
+    }
+});
+
+router.put('/',async(req,res)=>{
+    const {id,startAt} = req.body;
+    const queryParams ={
+        TableName:process.env.MOTORCICLES_TABLE,
+        FilterExpression:'startAt=:t',
+        ExpressionAttributeValues: {
+            ':t':startAt
+        }
+    }
+    try{
+        const data = await validateMotorcicle(queryParams);
+        if(data.length>0){
+            throw  { startAt :`El tiempo ${startAt} ya se encuentra registrado`};
+        }else{
+            const params ={
+                TableName: process.env.MOTORCICLES_TABLE,
+                Key:{
+                    id:id
+                },
+                UpdateExpression: "SET startAt=:t, bussy=:bussy, currentUser=:user",
+                ExpressionAttributeValues :{
+                    ':t':startAt,
+                    ':bussy':false,
+                    ':user':''
+                },
+                ReturnValues:'ALL_NEW'
+            };
+            const motorcicle = await createOrUpdateMotorcicle(params);
+            res.status(200);
+            return res.send(motorcicle);
+        }
+
+    }catch(err){
+        res.status(401);
+        res.send(err);
+    }
+
+});
+
+router.delete('/',async(req,res)=>{
+    const { id } = req.body;
+    const params = {
         TableName: process.env.MOTORCICLES_TABLE,
         Key:{
-            id:motorcicleId
-        },
-        UpdateExpression: "SET startAt=:t, bussy=:bussy, currentUser=:user",
-        ExpressionAttributeValues :{
-            ':t':time,
-            ':bussy':false,
-            ':user':''
-        },
-        ReturnValues:'ALL_NEW'
-    };
-
-    docClient.update(params,(err,data)=>{
-        if(err){
-            res.status(401);
-            return res.send({
-                messagge:`Error ${err}`
-            });
-        }else{
-            console.log('data',data);
-            const { Attributes } = data;
-            res.status(200);
-            return res.send({
-                motorcicle:Attributes
-            });
+            id:id
         }
-    });
-
+    }
+    try{
+        const data = await deleteMotorcicle(params);
+        res.status(200);
+        return res.send({borrado:data});
+    }catch(err){
+        console.log('ERROR',err);
+        res.status(401);
+        res.send(err);
+    }
+    
 });
 
 module.exports = router;
