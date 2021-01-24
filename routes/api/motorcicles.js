@@ -102,6 +102,32 @@ router.put('/',async(req,res)=>{
 
 });
 
+router.put('/:id/bussy',async(req,res)=>{
+    const {bussy} = req.body;
+    const id = req.params.id;
+    console.log('id',id,'bussy',bussy);
+    try{
+        const params ={
+            TableName: process.env.MOTORCICLES_TABLE,
+            Key:{
+                id:id
+            },
+            UpdateExpression: "SET bussy=:bussy",
+            ExpressionAttributeValues :{
+                ':bussy':bussy
+            },
+            ReturnValues:'ALL_NEW'
+        };
+        const motorcicle = await createOrUpdateMotorcicle(params);
+        res.status(200);
+        return res.send(motorcicle);
+
+    }catch(error){
+        res.status(401);
+        res.send(err);
+    }
+});
+
 router.delete('/',async(req,res)=>{
     const { id } = req.body;
     const params = {

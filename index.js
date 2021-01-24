@@ -2,12 +2,14 @@ const   express = require('express'),
         socketio = require('socket.io'),
         http = require('http'),
         dotenv = require('dotenv').config(),
-        bodyParser = require('body-parser');
+        bodyParser = require('body-parser'),
+        cors = require('cors');
 
 const app = express();
 
 
 app.use(bodyParser.json());
+app.use(cors());
 app.use(require('./routes'));
 
 const server = http.createServer(app);
