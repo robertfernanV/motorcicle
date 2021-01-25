@@ -7,9 +7,13 @@ const   express = require('express'),
 
 const app = express();
 
+const corsOptions = {
+    origin:process.env.FRONTEND_ENDPOINT,
+    optionsSuccessStatus:200
+}
 
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(require('./routes'));
 
 const server = http.createServer(app);

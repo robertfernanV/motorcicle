@@ -1,5 +1,5 @@
 {
-  "name": "ciclesapp",
+  "name": "bikes",
   "version": "1.0.0",
   "description": "a simple app from test dynamodb with nodejs",
   "main": "index.js",

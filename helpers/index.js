@@ -4,12 +4,12 @@ const region = require('../config/config').config();
 
 //DynamoDB por defecto no retorna nada cuando se hace un put por ende se esta empleado update que retorna el objeto si lo especificas
 //tanto para el crear y Actualizar
-exports.createOrUpdateMotorcicle = async(params) =>{
+exports.createOrUpdateBike = async(params) =>{
     AWS.config.update(region.aws_local_config);
     const docClient = new AWS.DynamoDB.DocumentClient();
     const data = await docClient.update(params).promise();
     const { Attributes } = data;
-    return {motorcicle:Attributes};
+    return {bike:Attributes};
 }
 
 /*
@@ -19,7 +19,7 @@ blog.yugabyte.com/dynamodb-pricing-calculator-expensive-vs-alternatives/#:~:text
 Indexed data storage
 Don’t forget that indexes in DynamoDB aren’t free. AWS tacks on 100 bytes of storage overhead per item to account for indexes. Indexes are then added to your data storage bill.
 */
-exports.validateMotorcicle = async(params) =>{
+exports.validateBike = async(params) =>{
     AWS.config.update(region.aws_local_config);
     const docClient = new AWS.DynamoDB.DocumentClient();
     const data = await docClient.scan(params).promise();
@@ -30,16 +30,23 @@ exports.validateMotorcicle = async(params) =>{
 Debido a las limitaciones de la capa gratuita se hace un simple scan,
 lo ideal seria paginar pero esta fuera del alcance.
 */
-exports.listMotorcicle = async(params)=>{
+exports.listBikes = async(params)=>{
     AWS.config.update(region.aws_local_config);
     const docClient = new AWS.DynamoDB.DocumentClient();
     const data = await docClient.scan(params).promise();
     return data;
 }
 
-exports.deleteMotorcicle = async(params) =>{
+exports.deleteBike = async(params) =>{
     AWS.config.update(region.aws_local_config);
     const docClient = new AWS.DynamoDB.DocumentClient();
     const data = await docClient.delete(params).promise();
     return true;
+}
+
+exports.getBike = async(params) =>{
+    AWS.config.update(region.aws_local_config);
+    const docClient = new AWS.DynamoDB.DocumentClient();
+    const data = await docClient.get(params).promise();
+    return data;
 }

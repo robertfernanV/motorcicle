@@ -1,6 +1,7 @@
 NODE_ENV = testing
+FRONTEND_ENDPOINT= http://localhost:8080
 
-MOTORCICLES_TABLE = motorcicles
+BIKES_TABLE = bikes
 USERS_TABLE = users
 
 REGION_LOCAL = REGION_LOCAL

@@ -1,6 +1,6 @@
 
 {
-    "TableName": "motorcicles",
+    "TableName": "bikes",
     "KeySchema": [
       {
         "AttributeName": "id",
